@@ -90,6 +90,7 @@ dev = [
     "ruff>=0.7.0",
     "mypy>=1.8.0",
     "types-requests>=2.32.4.20250611",
+    "pre-commit>=4.2.0",
 ]
 test = [
     "pytest>=8.0.0",
