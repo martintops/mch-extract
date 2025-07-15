@@ -45,4 +45,4 @@ jobs:
       run: |
         uv publish --index testpypi
       env:
-        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}

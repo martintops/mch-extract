@@ -2,7 +2,7 @@
 
 > **⚠️ DISCLAIMER**: This tool is **NOT official** and is **NOT affiliated** with MeteoSwiss. It is an independent project that provides a convenient access to publicly available MeteoSwiss measurement data through the Open Government Data initiative.
 
-A simple Python tool for downloading weather data from Switzerland's automatic ground-based weather stations. Designed for scientists and researchers who need easy access to [MeteoSwiss data](https://opendatadocs.meteoswiss.ch/) without dealing with complex APIs.
+A simple Python tool for downloading weather data from Switzerland's automatic ground-based weather stations. Designed for scientists and researchers who need easy access to publicly available [MeteoSwiss data](https://opendatadocs.meteoswiss.ch/) without dealing with complex APIs.
 
 ## What Does This Tool Do?
 
