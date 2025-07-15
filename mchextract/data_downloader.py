@@ -104,7 +104,7 @@ class DataAvailabilityChecker:
 class DataDownloader:
     """Downloads MeteoSwiss data from their open data portal."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.session = requests.Session()
         self._logger = logging.getLogger(__name__)
         # Cache data sources by name for quick lookup
@@ -124,7 +124,7 @@ class DataDownloader:
         current_year = datetime.now().year
         today = date.today()
 
-        files_needed = []
+        files_needed: list[tuple[UpdateFrequency, tuple[int, int] | None]] = []
 
         # Historical data: from start of measurement until Dec 31 of last year
         historical_end = date(current_year - 1, 12, 31)
@@ -328,7 +328,7 @@ class DataDownloader:
 
     def save_data(
         self, data: dict[str, pl.DataFrame], output_path: str, format: str = "csv"
-    ):
+    ) -> None:
         """Save downloaded data to a single combined file."""
         output_file = Path(output_path)
 

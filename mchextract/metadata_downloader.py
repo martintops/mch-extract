@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import requests
 
@@ -15,12 +16,12 @@ class MetaDataDownloader:
         self._cache_dir.mkdir(exist_ok=True)
         self._logger = logging.getLogger(__name__)
 
-    def _fetch_collection_metadata(self, data_source: DataSource) -> dict:
+    def _fetch_collection_metadata(self, data_source: DataSource) -> dict[str, Any]:
         """Fetch the STAC collection metadata from the API for a specific data source."""
         try:
             response = requests.get(data_source.collection_url, timeout=30)
             response.raise_for_status()
-            return response.json()
+            return response.json()  # type: ignore[no-any-return]
         except requests.RequestException as e:
             raise Exception(
                 f"Failed to fetch collection metadata for {data_source.name}: {e}"

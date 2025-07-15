@@ -60,7 +60,7 @@ class MetaDataLoader:
 
     def load_data_inventory(self) -> dict[str, list[DataAvailability]]:
         """Load data availability information from CSV files, grouped by station."""
-        inventory = {}
+        inventory: dict[str, list[DataAvailability]] = {}
 
         for data_source in DATA_SOURCES:
             csv_file = self._get_data_source_file_path(data_source, "DATA_INVENTORY")

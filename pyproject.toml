@@ -24,18 +24,6 @@ dependencies = [
     "requests>=2.32.4",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0.0",
-    "pytest-cov>=5.0.0",
-    "ruff>=0.7.0",
-    "mypy>=1.8.0",
-]
-test = [
-    "pytest>=8.0.0",
-    "pytest-cov>=5.0.0",
-]
-
 [project.scripts]
 mch-extract = "mchextract.cli:main"
 
@@ -94,3 +82,16 @@ explicit = true
 name = "testpypi"
 publish-url = "https://test.pypi.org/legacy/"
 url = "https://test.pypi.org/simple/"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+    "ruff>=0.7.0",
+    "mypy>=1.8.0",
+    "types-requests>=2.32.4.20250611",
+]
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]

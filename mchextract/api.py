@@ -65,7 +65,8 @@ class MchExtract:
             list of station abbreviations (3-letter codes)
         """
         self._ensure_metadata_loaded()
-        assert self._metadata is not None  # Type guard after ensure_metadata_loaded
+        if self._metadata is None:
+            raise RuntimeError("Failed to load metadata")
         return list(self._metadata.stations.keys())
 
     def get_available_variables(self) -> list[str]:
@@ -90,7 +91,8 @@ class MchExtract:
             dictionary with station information or None if not found
         """
         self._ensure_metadata_loaded()
-        assert self._metadata is not None  # Type guard after ensure_metadata_loaded
+        if self._metadata is None:
+            raise RuntimeError("Failed to load metadata")
 
         if station not in self._metadata.stations:
             return None
@@ -161,7 +163,8 @@ class MchExtract:
             timescale = timescale_map[timescale]
 
         self._ensure_metadata_loaded()
-        assert self._metadata is not None  # Type guard after ensure_metadata_loaded
+        if self._metadata is None:
+            raise RuntimeError("Failed to load metadata")
 
         self._logger.debug(
             f"Extracting {timescale.to_readable_name()} data from {start_date} to {end_date} "
