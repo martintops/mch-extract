@@ -33,7 +33,7 @@ class MchExtractArgs:
     variables: list[str]
     parameters: list[str]
     timescale: TimeScale
-    output: str
+    output: str | None
     verbose: bool = False
 
 

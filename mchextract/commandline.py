@@ -32,10 +32,11 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     )
     parser.add_argument(
         "--variables",
-        required=True,
+        required=False,
         help="Target variables to extract. E.g.: temperature, precipitation",
         choices=DWH_CONVERTERS.keys(),
         nargs="+",
+        default=[],
     )
     parser.add_argument(
         "--dwh",
@@ -46,18 +47,16 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     )
     parser.add_argument("--monthly", action="store_true", help="Extract monthly data.")
     parser.add_argument("--daily", action="store_true", help="Extract daily data.")
-    parser.add_argument(
-        "--hourly", action="store_true", help="Extract hourly data (if available)."
-    )
+    parser.add_argument("--hourly", action="store_true", help="Extract hourly data.")
     parser.add_argument(
         "--ten-minute",
         action="store_true",
-        help="Extract ten-minute data (if available).",
+        help="Extract ten-minute data.",
     )
     parser.add_argument(
         "--output",
-        required=True,
-        help="Output file path. Supported formats: CSV, parquet. Format is determined by the file extension (e.g., .csv, .parquet).",
+        required=False,
+        help="Output file path. Supported formats: CSV, parquet, JSON. Format is determined by the file extension (e.g., .csv, .parquet).",
     )
     parser.add_argument(
         "--verbose",
@@ -91,8 +90,8 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     except ValueError:
         parser.error("Date must be in YYYY-MM-DD format.")
 
-    if not args.stations or not args.variables:
-        parser.error("At least one station and one variable must be specified.")
+    if not args.stations:
+        parser.error("At least one station must be specified.")
 
     # Auto-adjust end-date if not provided
     if not args.end_date:

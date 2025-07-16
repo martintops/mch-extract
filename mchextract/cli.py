@@ -69,14 +69,25 @@ def main() -> int:
         )
 
         # Determine output format based on file extension
-        output_format = "parquet" if args.output.endswith(".parquet") else "csv"
-        output_path = Path(args.output)
+        if args.output is not None:
+            output_path = Path(args.output)
+            output_format = output_path.suffix.lower().replace(".", "")
 
-        # Save the data
-        if output_format == "csv":
-            data.write_csv(output_path)
+            match output_format:
+                case "csv":
+                    data.write_csv(output_path)
+                case "parquet":
+                    data.write_parquet(output_path)
+                case "json":
+                    data.write_json(output_path)
+                case _:
+                    logger.warning(
+                        f"Unsupported output format: {output_format}. Defaulting to CSV."
+                    )
+                    data.write_csv(output_path)
         else:
-            data.write_parquet(output_path)
+            # If no output specified, just print the data to stdout
+            print(data.write_csv())
 
         logger.debug(
             f"Data extraction completed successfully. Output saved to {args.output}"

@@ -291,7 +291,8 @@ class DataDownloader:
             if df is not None:
                 # Filter by date range and parameters
                 df = self._filter_by_date_range(df, start_date, end_date)
-                df = self._filter_by_parameters(df, parameters)
+                if parameters:
+                    df = self._filter_by_parameters(df, parameters)
 
                 if len(df) > 0:
                     dataframes.append(df)

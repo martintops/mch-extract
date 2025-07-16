@@ -47,7 +47,7 @@ def setup_logging(verbose: bool = False) -> None:
         logger.removeHandler(handler)
 
     # Create console handler for user-facing messages (INFO and above)
-    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler = logging.StreamHandler(sys.stderr)
     console_handler.setLevel(logging.INFO)
 
     # Create colored formatter for user-facing messages

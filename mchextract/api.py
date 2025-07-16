@@ -16,7 +16,7 @@ from .data_downloader import DataAvailabilityChecker, DataDownloader
 from .dwhconverter import convert_common_name_to_dwh
 from .metadata_downloader import MetaDataDownloader
 from .metadata_loader import MetaDataLoader
-from .models import MeteoData, TimeScale
+from .models import MeteoData, Parameter, Station, TimeScale
 
 
 class MchExtract:
@@ -41,21 +41,21 @@ class MchExtract:
         Args:
             verbose: Enable verbose logging if True
         """
-        self._metadata: MeteoData | None = None
         self._logger = logging.getLogger(__name__)
-
         if verbose:
             logging.basicConfig(level=logging.DEBUG)
 
-    def _ensure_metadata_loaded(self) -> None:
+        self._metadata: MeteoData = self._load_metadata()
+
+    def _load_metadata(self) -> MeteoData:
         """Ensure metadata is loaded, download if necessary."""
-        if self._metadata is None:
-            self._logger.debug("Loading metadata...")
-            manager = MetaDataDownloader()
-            manager.ensure_data_available()
-            loader = MetaDataLoader()
-            self._metadata = loader.load_all()
-            self._logger.debug("Metadata loaded successfully")
+        self._logger.debug("Loading metadata...")
+        manager = MetaDataDownloader()
+        manager.ensure_data_available()
+        loader = MetaDataLoader()
+        metadata = loader.load_all()
+        self._logger.debug("Metadata loaded successfully")
+        return metadata
 
     def get_available_stations(self) -> list[str]:
         """
@@ -64,9 +64,6 @@ class MchExtract:
         Returns:
             list of station abbreviations (3-letter codes)
         """
-        self._ensure_metadata_loaded()
-        if self._metadata is None:
-            raise RuntimeError("Failed to load metadata")
         return list(self._metadata.stations.keys())
 
     def get_available_variables(self) -> list[str]:
@@ -90,10 +87,6 @@ class MchExtract:
         Returns:
             dictionary with station information or None if not found
         """
-        self._ensure_metadata_loaded()
-        if self._metadata is None:
-            raise RuntimeError("Failed to load metadata")
-
         if station not in self._metadata.stations:
             return None
 
@@ -114,7 +107,7 @@ class MchExtract:
     def get_data(
         self,
         stations: str | list[str],
-        variables: str | list[str],
+        variables: str | list[str] | None,
         start_date: date,
         end_date: date,
         timescale: Literal["daily", "hourly", "monthly", "ten-minute"]
@@ -126,7 +119,7 @@ class MchExtract:
 
         Args:
             stations: Station code(s) (3-letter codes like 'PAY', 'VIT')
-            variables: Variable name(s) (common names like 'temperature', 'precipitation')
+            variables: Variable name(s) (common names like 'temperature', 'precipitation'). If None, all available variables will be used.
             start_date: Start date for data extraction
             end_date: End date for data extraction
             timescale: Time resolution ('daily', 'hourly', 'monthly', 'ten-minute' or TimeScale enum)
@@ -144,6 +137,8 @@ class MchExtract:
             stations = [stations]
         if isinstance(variables, str):
             variables = [variables]
+        if variables is None:
+            variables = []
         if dwh_parameters is None:
             dwh_parameters = []
 
@@ -161,10 +156,6 @@ class MchExtract:
                     f"Invalid timescale: {timescale}. Must be one of {list(timescale_map.keys())}"
                 )
             timescale = timescale_map[timescale]
-
-        self._ensure_metadata_loaded()
-        if self._metadata is None:
-            raise RuntimeError("Failed to load metadata")
 
         self._logger.debug(
             f"Extracting {timescale.to_readable_name()} data from {start_date} to {end_date} "
@@ -191,33 +182,18 @@ class MchExtract:
             )
 
         # Validate and convert variables to parameters
-        requested_variables = set(
-            flatten([convert_common_name_to_dwh(v, timescale) for v in variables])
-        ).union(set(dwh_parameters))
-        parameters = set()
-
-        for station in valid_stations:
-            available_variables = set(
-                [param.parameter_shortname for param in station.available_parameters]
+        if variables or dwh_parameters:
+            parameters = self._convert_variables(
+                variables, timescale, dwh_parameters, valid_stations
             )
-            if not requested_variables.issubset(available_variables):
-                missing_vars = requested_variables - available_variables
-                self._logger.warning(
-                    f"The following requested variables are not available for station {station.abbr}: {missing_vars}"
+
+            if not parameters:
+                raise ValueError(
+                    "No valid parameters available for the requested data extraction."
                 )
-            # self._metadata is guaranteed to be not None due to assertion above
-            parameters.update(
-                {
-                    self._metadata.parameters[param.parameter_shortname]
-                    for param in station.available_parameters
-                    if param.parameter_shortname in requested_variables
-                }
-            )
-
-        if not parameters:
-            raise ValueError(
-                "No valid parameters available for the requested data extraction."
-            )
+        else:
+            # empty set
+            parameters: set[Parameter] = set()
 
         # Validate date range
         if start_date > end_date:
@@ -269,11 +245,43 @@ class MchExtract:
 
         return combined_df
 
+    def _convert_variables(
+        self,
+        variables: list[str],
+        timescale: TimeScale,
+        dwh_parameters: list[str],
+        valid_stations: list[Station],
+    ) -> set[Parameter]:
+        requested_variables = set(
+            flatten([convert_common_name_to_dwh(v, timescale) for v in variables])
+        ).union(set(dwh_parameters))
+        parameters: set[Parameter] = set()
+
+        for station in valid_stations:
+            available_variables = set(
+                [param.parameter_shortname for param in station.available_parameters]
+            )
+            if not requested_variables.issubset(available_variables):
+                missing_vars = requested_variables - available_variables
+                self._logger.warning(
+                    f"The following requested variables are not available for station {station.abbr}: {missing_vars}"
+                )
+            # self._metadata is guaranteed to be not None due to assertion above
+            parameters.update(
+                {
+                    self._metadata.parameters[param.parameter_shortname]
+                    for param in station.available_parameters
+                    if param.parameter_shortname in requested_variables
+                }
+            )
+
+        return parameters
+
 
 # Convenience function for simple usage
 def get_data(
     stations: str | list[str],
-    variables: str | list[str],
+    variables: str | list[str] | None,
     start_date: date,
     end_date: date,
     timescale: Literal["daily", "hourly", "monthly", "ten-minute"]
@@ -288,7 +296,7 @@ def get_data(
 
     Args:
         stations: Station code(s) (3-letter codes like 'PAY', 'VIT')
-        variables: Variable name(s) (common names like 'temperature', 'precipitation')
+        variables: Variable name(s) (common names like 'temperature', 'precipitation'). If None, all available variables will be used.
         start_date: Start date for data extraction
         end_date: End date for data extraction
         timescale: Time resolution ('daily', 'hourly', 'monthly', 'ten-minute' or TimeScale enum)
