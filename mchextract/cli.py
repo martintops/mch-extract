@@ -35,22 +35,26 @@ def main() -> int:
 
         temp_parser = argparse.ArgumentParser(add_help=False)
         temp_parser.add_argument("--verbose", "-v", action="store_true")
+        temp_parser.add_argument("--no-cache", action="store_true")
         temp_args, _ = temp_parser.parse_known_args()
         verbose = temp_args.verbose
+        use_cache = not temp_args.no_cache
 
         # Set up logging with verbose setting
         setup_logging(verbose=verbose)
 
         # Load metadata for argument parsing
         logger.debug("Loading metadata for argument validation...")
-        loader = MetaDataLoader(CachedDownloader())
+        loader = MetaDataLoader(CachedDownloader(cache_enabled=use_cache))
         metadata = loader.load_all()
 
         # Parse command line arguments
         args = parse_args(metadata)
 
         # Create API instance
-        extractor = MchExtract(verbose=args.verbose, _metadata=metadata)
+        extractor = MchExtract(
+            verbose=args.verbose, use_cache=use_cache, _metadata=metadata
+        )
 
         logger.debug(
             f"Extracting {args.timescale.to_readable_name()} data from {args.start_date} to {args.end_date} "

@@ -26,12 +26,14 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     )
     parser.add_argument(
         "--stations",
+        "-s",
         required=True,
         help="3 letters target station code, space separated. E.g.: PAY VIT ROM",
         nargs="+",
     )
     parser.add_argument(
         "--variables",
+        "-v",
         required=False,
         help="Target variables to extract. E.g.: temperature, precipitation",
         choices=DWH_CONVERTERS.keys(),
@@ -40,6 +42,7 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     )
     parser.add_argument(
         "--dwh",
+        "-p",
         required=False,
         help="Additional parameters to be included. Must be DWH shortnames like 'dkl010h0'.",
         nargs="+",
@@ -70,14 +73,19 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     )
     parser.add_argument(
         "--output",
+        "-o",
         required=False,
         help="Output file path. Supported formats: CSV, parquet, JSON. Format is determined by the file extension (e.g., .csv, .parquet).",
     )
     parser.add_argument(
         "--verbose",
-        "-v",
         action="store_true",
         help="Enable verbose logging (debug output).",
+    )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable caching of downloaded data.",
     )
 
     args = parser.parse_args()
@@ -145,4 +153,5 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
         timescale=args.timescale,
         output=args.output,
         verbose=args.verbose,
+        use_cache=not args.no_cache,
     )

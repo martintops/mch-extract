@@ -35,6 +35,7 @@ class MchExtractArgs:
     timescale: TimeScale
     output: str | None
     verbose: bool = False
+    use_cache: bool = True
 
 
 @dataclass
