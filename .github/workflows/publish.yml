@@ -28,8 +28,6 @@ jobs:
       run: |
         uv run --with twine -- twine check dist/*
     
-    - name: Publish to PyPI
+    - name: Publish to PyPI # using trusted publishing
       run: |
-        uv publish --index testpypi
-      env:
-        UV_PUBLISH_TOKEN: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        uv publish
