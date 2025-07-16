@@ -39,8 +39,15 @@ PRECIP_SOURCE = DataSource(
     file_prefix="ogd-smn-precip",
 )
 
+TOWER_SOURCE = DataSource(
+    name="smn-tower",
+    collection_url="https://data.geo.admin.ch/api/stac/v1/collections/ch.meteoschweiz.ogd-smn-tower",
+    data_url="https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-tower",
+    file_prefix="ogd-smn-tower",
+)
+
 # All available data sources
-DATA_SOURCES = [SMN_SOURCE, PRECIP_SOURCE]
+DATA_SOURCES = [SMN_SOURCE, PRECIP_SOURCE, TOWER_SOURCE]
 
 
 class MetaDataFiles(Enum):
