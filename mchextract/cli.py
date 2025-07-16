@@ -34,7 +34,7 @@ def main() -> int:
         import argparse
 
         temp_parser = argparse.ArgumentParser(add_help=False)
-        temp_parser.add_argument("--verbose", "-v", action="store_true")
+        temp_parser.add_argument("--verbose", action="store_true")
         temp_parser.add_argument("--no-cache", action="store_true")
         temp_args, _ = temp_parser.parse_known_args()
         verbose = temp_args.verbose
