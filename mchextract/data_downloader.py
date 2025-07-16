@@ -4,7 +4,8 @@ from enum import Enum
 from pathlib import Path
 
 import polars as pl
-import requests
+
+from mchextract.downloader import CachedDownloader
 
 from .consts import DATA_SOURCES, DataSource
 from .models import Parameter, Station, TimeScale
@@ -104,11 +105,11 @@ class DataAvailabilityChecker:
 class DataDownloader:
     """Downloads MeteoSwiss data from their open data portal."""
 
-    def __init__(self) -> None:
-        self.session = requests.Session()
+    def __init__(self, downloader: CachedDownloader) -> None:
         self._logger = logging.getLogger(__name__)
         # Cache data sources by name for quick lookup
         self._data_sources = {source.name: source for source in DATA_SOURCES}
+        self._downloader = downloader
 
     def _get_data_source_for_station(self, station: Station) -> DataSource:
         """Get the data source configuration for a station."""
@@ -167,14 +168,14 @@ class DataDownloader:
 
         return files_needed
 
-    def _build_url(
+    def _build_filename(
         self,
         station: Station,
         timescale: TimeScale,
         frequency: UpdateFrequency,
         decade_range: tuple[int, int] | None = None,
     ) -> str:
-        """Build the download URL for a specific station, timescale, and frequency."""
+        """Build the filename for a specific station, timescale, and frequency."""
         data_source = self._get_data_source_for_station(station)
         granularity = timescale.to_granularity()
 
@@ -192,13 +193,15 @@ class DataDownloader:
             # Format: {prefix}_{station}_{granularity}_{frequency}.csv
             filename = f"{data_source.file_prefix}_{station.abbr.lower()}_{granularity}_{frequency.value}.csv"
 
-        return f"{data_source.data_url}/{station.abbr.lower()}/{filename}"
+        return f"{station.abbr.lower()}/{filename}"
 
-    def _download_file(self, url: str) -> pl.DataFrame | None:
+    def _download_file(
+        self, data_source: DataSource, filename: str
+    ) -> pl.DataFrame | None:
         """Download a single CSV file and return as polars DataFrame."""
         try:
-            response = self.session.get(url, timeout=30)
-            response.raise_for_status()
+            # Use the cached downloader to get the file content
+            content = self._downloader.download(data_source.data_url, filename)
 
             # Read CSV with polars - MeteoSwiss uses semicolon as separator
             # Use infer_schema_length=0 to infer types from entire file
@@ -206,18 +209,15 @@ class DataDownloader:
             from io import BytesIO
 
             df = pl.read_csv(
-                BytesIO(response.content),
+                BytesIO(content),
                 separator=";",
                 infer_schema_length=0,
                 ignore_errors=True,
             )
             return df
 
-        except requests.exceptions.RequestException as e:
-            self._logger.error(f"Failed to download {url}: {e}")
-            return None
         except Exception as e:
-            self._logger.error(f"Failed to parse CSV from {url}: {e}")
+            self._logger.error(f"Failed to download or parse CSV {filename}: {e}")
             return None
 
     def _filter_by_date_range(
@@ -275,19 +275,20 @@ class DataDownloader:
         dataframes: list[pl.DataFrame] = []
 
         for frequency, decade_range in files_needed:
-            url = self._build_url(station, timescale, frequency, decade_range)
+            data_source = self._get_data_source_for_station(station)
+            filename = self._build_filename(station, timescale, frequency, decade_range)
 
             if decade_range:
                 start_year, end_year = decade_range
                 self._logger.debug(
-                    f"Downloading {frequency.value} data ({start_year}-{end_year}) for station {station.abbr}: {url}"
+                    f"Downloading {frequency.value} data ({start_year}-{end_year}) for station {station.abbr}: {filename}"
                 )
             else:
                 self._logger.debug(
-                    f"Downloading {frequency.value} data for station {station.abbr}: {url}"
+                    f"Downloading {frequency.value} data for station {station.abbr}: {filename}"
                 )
 
-            df = self._download_file(url)
+            df = self._download_file(data_source, filename)
             if df is not None:
                 # Filter by date range and parameters
                 df = self._filter_by_date_range(df, start_date, end_date)

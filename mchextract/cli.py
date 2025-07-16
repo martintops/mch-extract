@@ -9,10 +9,11 @@ import logging
 import sys
 from pathlib import Path
 
+from mchextract.downloader import CachedDownloader
+
 from .api import MchExtract
 from .commandline import parse_args
 from .logging_config import setup_logging
-from .metadata_downloader import MetaDataDownloader
 from .metadata_loader import MetaDataLoader
 
 
@@ -42,9 +43,7 @@ def main() -> int:
 
         # Load metadata for argument parsing
         logger.debug("Loading metadata for argument validation...")
-        manager = MetaDataDownloader()
-        manager.ensure_data_available()
-        loader = MetaDataLoader()
+        loader = MetaDataLoader(CachedDownloader())
         metadata = loader.load_all()
 
         # Parse command line arguments

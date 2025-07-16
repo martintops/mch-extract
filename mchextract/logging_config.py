@@ -62,3 +62,5 @@ def setup_logging(verbose: bool = False) -> None:
         console_handler.setLevel(logging.DEBUG)
         debug_formatter = ColoredFormatter("[%(levelname)s] %(name)s: %(message)s")
         console_handler.setFormatter(debug_formatter)
+        # Suppress urllib3 DEBUG logs even in verbose mode
+        logging.getLogger("urllib3").setLevel(logging.INFO)

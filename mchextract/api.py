@@ -12,9 +12,10 @@ from typing import Literal
 import polars as pl
 from more_itertools import flatten
 
+from mchextract.downloader import CachedDownloader
+
 from .data_downloader import DataAvailabilityChecker, DataDownloader
 from .dwhconverter import convert_common_name_to_dwh
-from .metadata_downloader import MetaDataDownloader
 from .metadata_loader import MetaDataLoader
 from .models import MeteoData, Parameter, Station, TimeScale
 
@@ -45,14 +46,13 @@ class MchExtract:
         if verbose:
             logging.basicConfig(level=logging.DEBUG)
 
+        self._downloader = CachedDownloader()
         self._metadata: MeteoData = self._load_metadata()
 
     def _load_metadata(self) -> MeteoData:
         """Ensure metadata is loaded, download if necessary."""
         self._logger.debug("Loading metadata...")
-        manager = MetaDataDownloader()
-        manager.ensure_data_available()
-        loader = MetaDataLoader()
+        loader = MetaDataLoader(self._downloader)
         metadata = loader.load_all()
         self._logger.debug("Metadata loaded successfully")
         return metadata
@@ -217,7 +217,7 @@ class MchExtract:
             raise RuntimeError(f"Data not available: {error_message}")
 
         # Download the data
-        downloader = DataDownloader()
+        downloader = DataDownloader(self._downloader)
         station_data = downloader.download_multiple_stations(
             stations=valid_stations,
             parameters=list(parameters),

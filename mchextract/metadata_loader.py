@@ -1,38 +1,29 @@
-from pathlib import Path
-
 import polars as pl
 
-from mchextract.consts import DATA_SOURCES, DEFAULT_CACHE_DIR, DataSource
+from mchextract.consts import DATA_SOURCES
+from mchextract.downloader import CachedDownloader
 from mchextract.models import DataAvailability, MeteoData, Parameter, Station
 
 
 class MetaDataLoader:
     """Loads MeteoSwiss metadata from CSV files and creates structured data models."""
 
-    def __init__(self, cache_dir: Path = DEFAULT_CACHE_DIR):
-        self._cache_dir = cache_dir
+    def __init__(self, downloader: CachedDownloader):
+        self._downloader = downloader
 
-    def _get_data_source_file_path(
-        self, data_source: DataSource, file_type: str
-    ) -> Path:
-        """Get the file path for a specific data source and file type."""
-        filename = data_source.meta_files[file_type]
-        return self._cache_dir / filename
-
-    def load_parameters(self) -> dict[str, Parameter]:
+    def _load_parameters(self) -> dict[str, Parameter]:
         """Load parameter definitions from CSV files from all data sources."""
         parameters = {}
 
         for data_source in DATA_SOURCES:
-            csv_file = self._get_data_source_file_path(data_source, "PARAMETERS")
-
-            if not csv_file.exists():
-                continue
+            csv_file = self._downloader.download(
+                data_source.data_url, data_source.meta_files["PARAMETERS"]
+            )
 
             df = pl.read_csv(
                 csv_file,
                 separator=";",
-                encoding="utf8",
+                encoding="windows-1252",
                 schema_overrides={
                     "parameter_decimals": pl.Int32,
                 },
@@ -58,20 +49,19 @@ class MetaDataLoader:
 
         return parameters
 
-    def load_data_inventory(self) -> dict[str, list[DataAvailability]]:
+    def _load_data_inventory(self) -> dict[str, list[DataAvailability]]:
         """Load data availability information from CSV files, grouped by station."""
         inventory: dict[str, list[DataAvailability]] = {}
 
         for data_source in DATA_SOURCES:
-            csv_file = self._get_data_source_file_path(data_source, "DATA_INVENTORY")
-
-            if not csv_file.exists():
-                continue
+            csv_file = self._downloader.download(
+                data_source.data_url, data_source.meta_files["DATA_INVENTORY"]
+            )
 
             df = pl.read_csv(
                 csv_file,
                 separator=";",
-                encoding="utf8",
+                encoding="windows-1252",
                 schema_overrides={
                     "meas_cat_nr": pl.Int32,
                 },
@@ -103,22 +93,21 @@ class MetaDataLoader:
 
         return inventory
 
-    def load_stations(
+    def _load_stations(
         self, data_inventory: dict[str, list[DataAvailability]]
     ) -> dict[str, Station]:
         """Load station metadata from CSV files and join with data inventory."""
         stations = {}
 
         for data_source in DATA_SOURCES:
-            csv_file = self._get_data_source_file_path(data_source, "STATIONS")
-
-            if not csv_file.exists():
-                continue
+            csv_file = self._downloader.download(
+                data_source.data_url, data_source.meta_files["STATIONS"]
+            )
 
             df = pl.read_csv(
                 csv_file,
                 separator=";",
-                encoding="utf8",
+                encoding="windows-1252",
                 schema_overrides={
                     "station_height_masl": pl.Float64,
                     "station_height_barometer_masl": pl.Float64,
@@ -175,8 +164,9 @@ class MetaDataLoader:
 
     def load_all(self) -> MeteoData:
         """Load all metadata and return structured MeteoData object."""
-        parameters = self.load_parameters()
-        data_inventory = self.load_data_inventory()
-        stations = self.load_stations(data_inventory)
+
+        parameters = self._load_parameters()
+        data_inventory = self._load_data_inventory()
+        stations = self._load_stations(data_inventory)
 
         return MeteoData(stations=stations, parameters=parameters)
