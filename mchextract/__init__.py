@@ -27,5 +27,4 @@ Example usage:
 from .api import MchExtract, get_data
 from .models import TimeScale
 
-__version__ = "0.1.3"
 __all__ = ["MchExtract", "get_data", "TimeScale"]
