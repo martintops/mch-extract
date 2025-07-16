@@ -2,14 +2,14 @@
 
 > **⚠️ DISCLAIMER**: This tool is **NOT official** and is **NOT affiliated** with MeteoSwiss. It is an independent project that provides a convenient access to publicly available MeteoSwiss measurement data through the Open Government Data initiative.
 
-A simple Python tool for downloading weather data from Switzerland's automatic ground-based weather stations. Designed for scientists and researchers who need easy access to publicly available [MeteoSwiss data](https://opendatadocs.meteoswiss.ch/) without dealing with complex APIs.
+A simple Python tool for downloading weather data from Switzerland's automatic ground-based weather stations. Designed for scientists and researchers who need easy access to publicly available [MeteoSwiss data](https://opendatadocs.meteoswiss.ch/) without dealing with the complexities of the FSDI REST API.
 
 ## What Does This Tool Do?
 
 - **Download weather data** from Swiss weather stations with simple commands
-- **Get data in different time intervals**: daily, hourly, monthly, or 10-minute measurements
+- **Get data in different time intervals**: daily, hourly, monthly, or 10-minutes measurements
 - **Save data** in Excel-friendly CSV or efficient Parquet formats
-- **Access data programmatically** in Python for analysis
+- **Access data programmatically** in Python for analysis using [Polars](https://docs.pola.rs/) or Pandas
 - **Handle data validation** automatically - just specify what you want
 
 ## Installation
@@ -57,7 +57,7 @@ mch-extract --from 2024-06-01 \
 from datetime import date
 from mchextract import get_data
 
-# Download weather data
+# Download weather data as a Polars DataFrame
 data = get_data(
     stations=['PAY', 'VIT'],  # Payerne and Villars-Tiercelin stations
     variables=['temperature', 'precipitation'],
@@ -65,6 +65,10 @@ data = get_data(
     end_date=date(2024, 6, 7),
     timescale='daily'
 )
+
+# If you prefer working with Pandas, you can convert the Polars DataFrame:
+# data = data.to_pandas()
+# (requires `pandas` package to be installed separately)
 
 print(f"Downloaded {len(data)} rows of data")
 print(data.head())
@@ -81,7 +85,7 @@ data.write_csv("my_data.csv")
 
 - `--from DATE`: Start date (YYYY-MM-DD format, e.g., 2024-06-01)
 - `--stations CODES`: Weather station codes (e.g., PAY VIT ROM)
-- **Time resolution**: Choose one of `--daily`, `--hourly`, `--monthly`, or `--ten-minute`
+- **Time resolution**: Choose one of `--monthly`, `--daily`, `--hourly`, or `--10min`
 
 **Optional:**
 
@@ -90,6 +94,7 @@ data.write_csv("my_data.csv")
 - `--dwh PARAMS`: Additional MeteoSwiss DWH parameters shortnames to include. See below on how to find them.
 - `--output FILE`: Where to save data. Supported format are: `.csv`, `.json`, `.parquet`. If not set, will print CSV data to STDOUT
 - `--verbose`: Show detailed progress information
+- `--no-cache`: Disable caching (useful for testing or debugging)
 
 ### Available Weather Variables
 
@@ -104,10 +109,10 @@ As a convenience, some "easy to use" variables are provided. These will be autom
 
 ### Time Intervals
 
+- `--monthly`: Monthly averages
 - `--daily`: One measurement per day
 - `--hourly`: One measurement per hour
-- `--monthly`: Monthly averages
-- `--ten-minute`: Real-time measurements every 10 minutes
+- `--10min`: Real-time measurements every 10 minutes
 
 ### Station Codes
 
@@ -122,6 +127,8 @@ Weather stations use 3-letter codes:
 If you use an invalid code, the tool will show you all available stations.
 
 ### References
+
+STAC browser: https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-smn?.language=en
 
 For the list of available stations and parameters, consult the following CSV files:
 
@@ -189,7 +196,7 @@ This tool accesses data from Switzerland's official weather monitoring network:
 
 ### Data Types Available
 
-- **10-minute data**: Real-time measurements (updated every 20 minutes)
+- **10-minutes data**: Real-time measurements (updated every 20 minutes)
 - **Hourly data**: Hourly summaries
 - **Daily data**: Daily summaries (most common for research)
 - **Monthly data**: Monthly climate summaries
@@ -198,7 +205,7 @@ This tool accesses data from Switzerland's official weather monitoring network:
 
 - **Historical**: From when each station started until end of last year
 - **Recent**: From January 1st of current year until yesterday
-- **Real-time**: Current data (only for hourly and 10-minute intervals)
+- **Real-time**: Current data (only for hourly and 10-minutes intervals)
 
 ### Data Quality
 
