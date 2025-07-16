@@ -3,6 +3,7 @@ from enum import Enum
 from pathlib import Path
 
 DEFAULT_CACHE_DIR = Path(__file__).parent / ".cache"
+REQUEST_TIMEOUT_S = 30  # seconds
 
 
 class MetaFiles(Enum):

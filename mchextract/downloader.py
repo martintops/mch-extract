@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 import requests
 
-from .consts import DEFAULT_CACHE_DIR
+from .consts import DEFAULT_CACHE_DIR, REQUEST_TIMEOUT_S
 
 
 class CacheMetadata(TypedDict):
@@ -66,7 +66,7 @@ class CachedDownloader:
         if existing_etag:
             headers["If-None-Match"] = existing_etag
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=REQUEST_TIMEOUT_S)
 
         if response.status_code == 304:
             # Not modified, return cached content
@@ -115,7 +115,7 @@ class CachedDownloader:
 
     def _download_direct(self, url: str) -> requests.Response:
         """Download file directly without caching."""
-        response = requests.get(url)
+        response = requests.get(url, timeout=REQUEST_TIMEOUT_S)
         response.raise_for_status()
 
         # Verify checksum if provided
