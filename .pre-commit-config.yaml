@@ -14,12 +14,12 @@ repos:
       name: mypy
       entry: uv run mypy mchextract/
       language: system
+      types: [python]
       pass_filenames: false
-      always_run: true
       fail_fast: true
     - id: pytest
       name: pytest
       entry: uv run pytest tests/
       language: system
+      types: [python]
       pass_filenames: false
-      always_run: true

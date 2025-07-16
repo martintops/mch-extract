@@ -28,13 +28,6 @@ jobs:
       run: |
         uv run --with twine -- twine check dist/*
     
-    - name: Download artifacts (if needed)
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-distributions
-        path: dist/
-      continue-on-error: true
-    
     - name: Publish to PyPI
       run: |
         uv publish --index testpypi
