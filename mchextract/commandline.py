@@ -45,13 +45,28 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
         nargs="+",
         default=[],
     )
-    parser.add_argument("--monthly", action="store_true", help="Extract monthly data.")
-    parser.add_argument("--daily", action="store_true", help="Extract daily data.")
-    parser.add_argument("--hourly", action="store_true", help="Extract hourly data.")
-    parser.add_argument(
-        "--ten-minute",
+    # Create mutually exclusive group for time scale options
+    timescale_group_container = parser.add_argument_group(
+        "Granularity options",
+        "Select the granularity of the data to extract. Only one option can be selected.",
+    )
+    timescale_group = timescale_group_container.add_mutually_exclusive_group(
+        required=True
+    )
+    timescale_group.add_argument(
+        "--monthly", action="store_true", help="Extract monthly data."
+    )
+    timescale_group.add_argument(
+        "--daily", action="store_true", help="Extract daily data."
+    )
+    timescale_group.add_argument(
+        "--hourly", action="store_true", help="Extract hourly data."
+    )
+    timescale_group.add_argument(
+        "--10min",
+        dest="ten_minutes",
         action="store_true",
-        help="Extract ten-minute data.",
+        help="Extract 10min data.",
     )
     parser.add_argument(
         "--output",
@@ -66,11 +81,6 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     )
 
     args = parser.parse_args()
-    # Ensure that at least one of --monthly, --daily, or --hourly is specified
-    if not (args.monthly or args.daily or args.hourly or args.ten_minute):
-        parser.error(
-            "At least one of --monthly, --daily, --hourly, or --ten-minute must be specified."
-        )
 
     # Convert boolean flags to timescale
     if args.monthly:
@@ -79,8 +89,8 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
         args.timescale = TimeScale.DAILY
     elif args.hourly:
         args.timescale = TimeScale.HOURLY
-    elif args.ten_minute:
-        args.timescale = TimeScale.TEN_MINUTE
+    elif args.ten_minutes:
+        args.timescale = TimeScale.TEN_MINUTES
 
     # Validate date format
     try:
@@ -96,7 +106,7 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
     # Auto-adjust end-date if not provided
     if not args.end_date:
         today = date.today()
-        if args.timescale in [TimeScale.HOURLY, TimeScale.TEN_MINUTE]:
+        if args.timescale in [TimeScale.HOURLY, TimeScale.TEN_MINUTES]:
             # End end is today if hourly or ten-minute data is requested
             args.end_date = today
         else:

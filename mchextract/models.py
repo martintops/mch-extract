@@ -8,7 +8,7 @@ class TimeScale(Enum):
     HOURLY = "H"
     MONTHLY = "M"
     YEARLY = "Y"
-    TEN_MINUTE = "T"
+    TEN_MINUTES = "T"
 
     def to_granularity(self) -> str:
         """Convert TimeScale to granularity string."""
@@ -21,7 +21,7 @@ class TimeScale(Enum):
             TimeScale.HOURLY: "hourly",
             TimeScale.MONTHLY: "monthly",
             TimeScale.YEARLY: "yearly",
-            TimeScale.TEN_MINUTE: "ten-minute",
+            TimeScale.TEN_MINUTES: "10min",
         }[self]
 
 

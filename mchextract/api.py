@@ -110,7 +110,7 @@ class MchExtract:
         variables: str | list[str] | None,
         start_date: date,
         end_date: date,
-        timescale: Literal["daily", "hourly", "monthly", "ten-minute"]
+        timescale: Literal["daily", "hourly", "monthly", "10min"]
         | TimeScale = TimeScale.DAILY,
         dwh_parameters: list[str] | None = None,
     ) -> pl.DataFrame:
@@ -122,7 +122,7 @@ class MchExtract:
             variables: Variable name(s) (common names like 'temperature', 'precipitation'). If None, all available variables will be used.
             start_date: Start date for data extraction
             end_date: End date for data extraction
-            timescale: Time resolution ('daily', 'hourly', 'monthly', 'ten-minute' or TimeScale enum)
+            timescale: Time resolution ('daily', 'hourly', 'monthly', '10min' or TimeScale enum)
             dwh_parameters: Additional DWH parameter codes to include
 
         Returns:
@@ -149,7 +149,7 @@ class MchExtract:
                 "hourly": TimeScale.HOURLY,
                 "monthly": TimeScale.MONTHLY,
                 "yearly": TimeScale.YEARLY,
-                "ten-minute": TimeScale.TEN_MINUTE,
+                "10min": TimeScale.TEN_MINUTES,
             }
             if timescale not in timescale_map:
                 raise ValueError(
@@ -282,7 +282,7 @@ def get_data(
     variables: str | list[str] | None,
     start_date: date,
     end_date: date,
-    timescale: Literal["daily", "hourly", "monthly", "ten-minute"]
+    timescale: Literal["daily", "hourly", "monthly", "10min"]
     | TimeScale = TimeScale.DAILY,
     dwh_parameters: list[str] | None = None,
     verbose: bool = False,
@@ -297,7 +297,7 @@ def get_data(
         variables: Variable name(s) (common names like 'temperature', 'precipitation'). If None, all available variables will be used.
         start_date: Start date for data extraction
         end_date: End date for data extraction
-        timescale: Time resolution ('daily', 'hourly', 'monthly', 'ten-minute' or TimeScale enum)
+        timescale: Time resolution ('daily', 'hourly', 'monthly', '10min' or TimeScale enum)
         dwh_parameters: Additional DWH parameter codes to include
         verbose: Enable verbose logging if True
 

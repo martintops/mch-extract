@@ -21,7 +21,7 @@ def _convert_temperature(timescale: TimeScale) -> list[str]:
             return ["tre200d0"]
         case TimeScale.HOURLY:
             return ["tre200h0"]
-        case TimeScale.TEN_MINUTE:
+        case TimeScale.TEN_MINUTES:
             return ["tre200s0"]
         case _:
             raise ValueError(f"Unsupported timescale for temperature: {timescale}")
@@ -39,7 +39,7 @@ def _convert_precipitation(timescale: TimeScale) -> list[str]:
             return ["rre150d0", "rka150d0"]
         case TimeScale.HOURLY:
             return ["rre150h0"]
-        case TimeScale.TEN_MINUTE:
+        case TimeScale.TEN_MINUTES:
             return ["rre150z0"]
         case _:
             raise ValueError(f"Unsupported timescale for precipitation: {timescale}")
@@ -56,7 +56,7 @@ def _convert_pressure(timescale: TimeScale) -> list[str]:
             return ["prestad0"]
         case TimeScale.HOURLY:
             return ["prestah0"]
-        case TimeScale.TEN_MINUTE:
+        case TimeScale.TEN_MINUTES:
             return ["prestas0"]
         case _:
             raise ValueError(f"Unsupported timescale for pressure: {timescale}")
@@ -73,7 +73,7 @@ def _convert_humidity(timescale: TimeScale) -> list[str]:
             return ["ure200d0"]
         case TimeScale.HOURLY:
             return ["ure200h0"]
-        case TimeScale.TEN_MINUTE:
+        case TimeScale.TEN_MINUTES:
             return ["ure200s0"]
         case _:
             raise ValueError(f"Unsupported timescale for humidity: {timescale}")
@@ -90,7 +90,7 @@ def _convert_sunshine(timescale: TimeScale) -> list[str]:
             return ["sre000d0"]
         case TimeScale.HOURLY:
             return ["sre000h0"]
-        case TimeScale.TEN_MINUTE:
+        case TimeScale.TEN_MINUTES:
             return ["sre000z0"]
         case _:
             raise ValueError(f"Unsupported timescale for sunshine: {timescale}")

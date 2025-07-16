@@ -130,7 +130,7 @@ class DataDownloader:
         historical_end = date(current_year - 1, 12, 31)
         if start_date <= historical_end:
             # For hourly and 10-minute data, we need to determine which 10-year periods to download
-            if timescale in [TimeScale.HOURLY, TimeScale.TEN_MINUTE]:
+            if timescale in [TimeScale.HOURLY, TimeScale.TEN_MINUTES]:
                 # Find the 10-year periods that overlap with our date range
                 start_decade = (start_date.year // 10) * 10
                 end_decade = min(
@@ -156,7 +156,7 @@ class DataDownloader:
 
         # Now data: from yesterday 12UTC to now (only for hourly and 10-minute)
         if (
-            timescale in [TimeScale.HOURLY, TimeScale.TEN_MINUTE]
+            timescale in [TimeScale.HOURLY, TimeScale.TEN_MINUTES]
             and end_date >= yesterday
         ):
             files_needed.append((UpdateFrequency.NOW, None))
