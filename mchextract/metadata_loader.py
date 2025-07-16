@@ -1,6 +1,10 @@
+import itertools
+from collections import defaultdict
+from concurrent.futures import Future, ThreadPoolExecutor
+
 import polars as pl
 
-from mchextract.consts import DATA_SOURCES
+from mchextract.consts import DATA_SOURCES, DataSource, MetaFiles
 from mchextract.downloader import CachedDownloader
 from mchextract.models import DataAvailability, MeteoData, Parameter, Station
 
@@ -10,18 +14,31 @@ class MetaDataLoader:
 
     def __init__(self, downloader: CachedDownloader):
         self._downloader = downloader
+        self._executor = ThreadPoolExecutor()
 
-    def _load_parameters(self) -> dict[str, Parameter]:
+    def _load_file(
+        self, data_source: DataSource, key: MetaFiles
+    ) -> Future[tuple[MetaFiles, DataSource, bytes]]:
+        def wrapper() -> tuple[MetaFiles, DataSource, bytes]:
+            return (
+                key,
+                data_source,
+                self._downloader.download(
+                    data_source.data_url, data_source.meta_files[key]
+                ),
+            )
+
+        return self._executor.submit(wrapper)
+
+    def _load_parameters(
+        self, files: list[tuple[DataSource, bytes]]
+    ) -> dict[str, Parameter]:
         """Load parameter definitions from CSV files from all data sources."""
         parameters = {}
 
-        for data_source in DATA_SOURCES:
-            csv_file = self._downloader.download(
-                data_source.data_url, data_source.meta_files["PARAMETERS"]
-            )
-
+        for _, file in files:
             df = pl.read_csv(
-                csv_file,
+                file,
                 separator=";",
                 encoding="windows-1252",
                 schema_overrides={
@@ -49,17 +66,15 @@ class MetaDataLoader:
 
         return parameters
 
-    def _load_data_inventory(self) -> dict[str, list[DataAvailability]]:
+    def _load_data_inventory(
+        self, files: list[tuple[DataSource, bytes]]
+    ) -> dict[str, list[DataAvailability]]:
         """Load data availability information from CSV files, grouped by station."""
         inventory: dict[str, list[DataAvailability]] = {}
 
-        for data_source in DATA_SOURCES:
-            csv_file = self._downloader.download(
-                data_source.data_url, data_source.meta_files["DATA_INVENTORY"]
-            )
-
+        for _, file in files:
             df = pl.read_csv(
-                csv_file,
+                file,
                 separator=";",
                 encoding="windows-1252",
                 schema_overrides={
@@ -94,18 +109,16 @@ class MetaDataLoader:
         return inventory
 
     def _load_stations(
-        self, data_inventory: dict[str, list[DataAvailability]]
+        self,
+        files: list[tuple[DataSource, bytes]],
+        data_inventory: dict[str, list[DataAvailability]],
     ) -> dict[str, Station]:
         """Load station metadata from CSV files and join with data inventory."""
         stations = {}
 
-        for data_source in DATA_SOURCES:
-            csv_file = self._downloader.download(
-                data_source.data_url, data_source.meta_files["STATIONS"]
-            )
-
+        for data_source, file in files:
             df = pl.read_csv(
-                csv_file,
+                file,
                 separator=";",
                 encoding="windows-1252",
                 schema_overrides={
@@ -165,8 +178,21 @@ class MetaDataLoader:
     def load_all(self) -> MeteoData:
         """Load all metadata and return structured MeteoData object."""
 
-        parameters = self._load_parameters()
-        data_inventory = self._load_data_inventory()
-        stations = self._load_stations(data_inventory)
+        # Use futures to load files concurrently
+        futures: list[Future[tuple[MetaFiles, DataSource, bytes]]] = []
+        for data_source, key in itertools.product(DATA_SOURCES, MetaFiles):
+            future = self._load_file(data_source, key)
+            futures.append(future)
+
+        # Wait for all futures to complete and collect results
+        results = [future.result() for future in futures]
+        metadata: dict[MetaFiles, list[tuple[DataSource, bytes]]] = defaultdict(list)
+
+        for key, data_source, content in results:
+            metadata[key].append((data_source, content))
+
+        parameters = self._load_parameters(metadata[MetaFiles.PARAMETERS])
+        data_inventory = self._load_data_inventory(metadata[MetaFiles.DATA_INVENTORY])
+        stations = self._load_stations(metadata[MetaFiles.STATIONS], data_inventory)
 
         return MeteoData(stations=stations, parameters=parameters)

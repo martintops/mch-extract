@@ -1,17 +1,16 @@
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TypedDict
 
 DEFAULT_CACHE_DIR = Path(__file__).parent / ".cache"
 
 
-class MetaFiles(TypedDict):
+class MetaFiles(Enum):
     """Metadata files for a data source."""
 
-    DATA_INVENTORY: str
-    PARAMETERS: str
-    STATIONS: str
+    DATA_INVENTORY = "DATA_INVENTORY"
+    PARAMETERS = "PARAMETERS"
+    STATIONS = "STATIONS"
 
 
 @dataclass
@@ -24,12 +23,12 @@ class DataSource:
     file_prefix: str
 
     @property
-    def meta_files(self) -> MetaFiles:
+    def meta_files(self) -> dict[MetaFiles, str]:
         """Return metadata file mappings for this data source."""
         return {
-            "DATA_INVENTORY": f"{self.file_prefix}_meta_datainventory.csv",
-            "PARAMETERS": f"{self.file_prefix}_meta_parameters.csv",
-            "STATIONS": f"{self.file_prefix}_meta_stations.csv",
+            MetaFiles.DATA_INVENTORY: f"{self.file_prefix}_meta_datainventory.csv",
+            MetaFiles.PARAMETERS: f"{self.file_prefix}_meta_parameters.csv",
+            MetaFiles.STATIONS: f"{self.file_prefix}_meta_stations.csv",
         }
 
 
