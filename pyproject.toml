@@ -1,6 +1,6 @@
 [project]
 name = "mch-extract"
-version = "0.1.4"
+version = "0.1.5"
 description = "A Python package for extracting meteorological data from MeteoSwiss OpenData API"
 readme = "README.md"
 requires-python = ">=3.10"
