@@ -17,6 +17,9 @@ cd mch-extract
 
 # Install all dependencies including development tools
 uv sync --extra dev
+
+# Install pre-commit hooks (recommended)
+uv run pre-commit install
 ```
 
 ## Development Commands
@@ -33,45 +36,29 @@ This installs all dependencies including development tools:
 - `pytest-cov` - Coverage reporting
 - `ruff` - Linting and formatting
 - `mypy` - Type checking
+- `pre-commit` - Git hooks for automated quality checks
 
-#### Install Package in Development Mode
+#### Install Pre-commit Hooks (Recommended)
 ```bash
-uv sync
+uv run pre-commit install
 ```
 
-This installs the package in editable mode so changes are immediately available.
+This sets up automated quality checks that run before each commit:
+- **Ruff linting** with auto-fix
+- **Ruff formatting**
+- **MyPy type checking**
+- **Pytest testing**
 
-### Code Quality
-
-#### Linting
+With pre-commit installed, these checks run automatically on `git commit`. You can also run them manually:
 ```bash
-# Check for linting issues
-uv run ruff check mchextract tests
+# Run all pre-commit hooks on all files
+uv run pre-commit run --all-files
 
-# Auto-fix issues where possible
-uv run ruff check --fix mchextract tests
+# Run pre-commit hooks on staged files only
+uv run pre-commit run
 ```
 
-#### Formatting
-```bash
-# Format code
-uv run ruff format mchextract tests
-
-# Check formatting without making changes
-uv run ruff format --check mchextract tests
-```
-
-#### Type Checking
-```bash
-uv run mypy mchextract
-```
-
-### Testing
-
-#### Run All Tests
-```bash
-uv run pytest tests/ -v
-```
+### Manual Testing (When Needed)
 
 #### Run Tests with Coverage
 ```bash
@@ -83,13 +70,12 @@ uv run pytest tests/ --cov=mchextract --cov-report=html
 # View at htmlcov/index.html
 ```
 
-#### Run Specific Test File
+#### Run Specific Tests
 ```bash
+# Run specific test file
 uv run pytest tests/test_basic.py -v
-```
 
-#### Run Tests Matching Pattern
-```bash
+# Run tests matching pattern
 uv run pytest -k "test_import" -v
 ```
 
@@ -159,36 +145,34 @@ uv publish
 
 **Note**: You'll need to configure PyPI credentials. See [Authentication](#authentication) section below.
 
-### Complete Development Workflow
+### Simplified Development Workflow
 
-Here's a typical development workflow combining all the tools:
+With pre-commit hooks installed, your workflow becomes much simpler:
 
 ```bash
-# 1. Install dependencies
+# 1. Install dependencies and pre-commit hooks (one-time setup)
 uv sync --extra dev
+uv run pre-commit install
 
 # 2. Make your changes to the code
 
-# 3. Format code
-uv run ruff format mchextract tests
-
-# 4. Fix linting issues
-uv run ruff check --fix mchextract tests
-
-# 5. Check types
-uv run mypy mchextract
-
-# 6. Run tests
-uv run pytest tests/ --cov=mchextract
-
-# 7. Build package to test
-uv build
-
-# 8. If everything looks good, commit and push
+# 3. Commit your changes (pre-commit runs automatically)
 git add .
 git commit -m "Your commit message"
+# Pre-commit will automatically:
+# - Format your code with ruff
+# - Fix linting issues with ruff
+# - Run type checking with mypy  
+# - Run all tests with pytest
+
+# 4. If pre-commit passes, push your changes
 git push
+
+# 5. If you need to build the package
+uv build
 ```
+
+**Note**: If pre-commit finds issues, fix them and commit again. The hooks ensure code quality before each commit.
 
 ## Authentication
 
@@ -218,12 +202,15 @@ The project uses GitHub Actions for CI/CD:
 - **`.github/workflows/publish.yml`**: Publishes to PyPI on releases
 
 ### Local CI Simulation
-To simulate what CI does locally:
+Pre-commit hooks automatically run the same checks as CI. To manually run all checks:
 
 ```bash
-# Run the same checks as CI
+# Run all pre-commit hooks (same as CI checks)
+uv run pre-commit run --all-files
+
+# Or run individual tools if needed
 uv run ruff check mchextract tests
-uv run ruff format --check mchextract tests
+uv run ruff format --check mchextract tests  
 uv run mypy mchextract
 uv run pytest tests/ --cov=mchextract
 uv build
@@ -272,6 +259,15 @@ Dependency lock file ensuring reproducible builds across environments.
 uv sync
 ```
 
+#### Pre-commit Issues
+```bash
+# If pre-commit hooks fail, you can run them manually to see details
+uv run pre-commit run --all-files
+
+# Update pre-commit hooks to latest versions
+uv run pre-commit autoupdate
+```
+
 #### Test Failures
 ```bash
 # Run tests with verbose output to see detailed errors
@@ -290,15 +286,10 @@ rm -rf dist/ build/ *.egg-info/
 uv build
 ```
 
-#### Linting Errors
+#### Linting/Formatting Errors
 ```bash
-# See all issues
-uv run ruff check mchextract tests
-
-# Auto-fix what can be fixed
-uv run ruff check --fix mchextract tests
-
-# Format code
+# Pre-commit handles these automatically, but if you need manual control:
+uv run ruff check mchextract tests --fix
 uv run ruff format mchextract tests
 ```
 
@@ -313,9 +304,9 @@ uv run ruff format mchextract tests
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature-name`
-3. Make your changes
-4. Run the development workflow commands above
-5. Commit your changes: `git commit -m "Description"`
+3. Install development environment: `uv sync --extra dev && uv run pre-commit install`
+4. Make your changes
+5. Commit your changes: `git commit -m "Description"` (pre-commit runs automatically)
 6. Push to your fork: `git push origin feature-name`
 7. Create a Pull Request
 
@@ -330,10 +321,10 @@ uv run ruff format mchextract tests
 
 ## Best Practices
 
-- **Always run tests before committing**: `uv run pytest`
-- **Format code consistently**: `uv run ruff format mchextract tests`
-- **Fix linting issues**: `uv run ruff check --fix mchextract tests`
-- **Keep dependencies up to date**: `uv sync --upgrade`
+- **Use pre-commit hooks**: `uv run pre-commit install` (automates code quality)
+- **Let pre-commit handle formatting and linting**: No need to run manual commands
 - **Write tests for new features**: Add tests in `tests/` directory
+- **Keep dependencies up to date**: `uv sync --upgrade`
 - **Update documentation**: Keep README.md and docstrings current
 - **Use semantic versioning**: Major.Minor.Patch (e.g., 1.2.3)
+- **Run coverage reports when needed**: `uv run pytest tests/ --cov=mchextract`
