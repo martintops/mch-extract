@@ -8,3 +8,18 @@ repos:
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
+- repo: local
+  hooks:
+    - id: mypy
+      name: mypy
+      entry: uv run mypy mchextract/
+      language: system
+      pass_filenames: false
+      always_run: true
+      fail_fast: true
+    - id: pytest
+      name: pytest
+      entry: uv run pytest tests/
+      language: system
+      pass_filenames: false
+      always_run: true

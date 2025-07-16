@@ -182,6 +182,7 @@ class MchExtract:
             )
 
         # Validate and convert variables to parameters
+        parameters: set[Parameter] = set()
         if variables or dwh_parameters:
             parameters = self._convert_variables(
                 variables, timescale, dwh_parameters, valid_stations
@@ -191,9 +192,6 @@ class MchExtract:
                 raise ValueError(
                     "No valid parameters available for the requested data extraction."
                 )
-        else:
-            # empty set
-            parameters: set[Parameter] = set()
 
         # Validate date range
         if start_date > end_date:
