@@ -59,7 +59,7 @@ from mchextract import get_data
 
 # Download weather data
 data = get_data(
-    stations=['PAY', 'VIT'],  # Payerne and Visp stations
+    stations=['PAY', 'VIT'],  # Payerne and Villars-Tiercelin stations
     variables=['temperature', 'precipitation'],
     start_date=date(2024, 6, 1),
     end_date=date(2024, 6, 7),
@@ -81,16 +81,19 @@ data.write_csv("my_data.csv")
 
 - `--from DATE`: Start date (YYYY-MM-DD format, e.g., 2024-06-01)
 - `--stations CODES`: Weather station codes (e.g., PAY VIT ROM)
-- `--variables VARS`: What to measure (e.g., temperature precipitation)
-- `--output FILE`: Where to save data (file.csv or file.parquet)
 - **Time resolution**: Choose one of `--daily`, `--hourly`, `--monthly`, or `--ten-minute`
 
 **Optional:**
 
-- `--to DATE`: End date (defaults to today)
+- `--to DATE`: End date (defaults to most recent valid date)
+- `--variables VARS`: What to measure (e.g., temperature precipitation). If not set, will return all available parameters for the stations
+- `--dwh PARAMS`: Additional MeteoSwiss DWH parameters shortnames to include. See below on how to find them.
+- `--output FILE`: Where to save data. Supported format are: `.csv`, `.json`, `.parquet`. If not set, will print CSV data to STDOUT
 - `--verbose`: Show detailed progress information
 
 ### Available Weather Variables
+
+As a convenience, some "easy to use" variables are provided. These will be automatically converted to DWH parameters for you.
 
 - `temperature`: Air temperature
 - `precipitation`: Rainfall and snow
@@ -138,7 +141,7 @@ For the list of available stations and parameters, consult the following CSV fil
 
 ```bash
 # Download precipitation data for multiple stations
-mch-extract --from 2024-01-01 --stations PAY VIT ROM \
+mch-extract --from 2024-01-01 --to 2024-01-31 --stations PAY VIT ROM \
     --variables precipitation --hourly --output rain_data.csv
 
 # Get temperature and humidity for Zurich area
@@ -146,7 +149,7 @@ mch-extract --from 2024-12-01 --to 2024-12-31 --stations KLO \
     --variables temperature humidity --daily --output zurich_weather.csv
 
 # Monthly climate summary for Geneva
-mch-extract --from 2024-01-01 --stations GVE \
+mch-extract --from 2024-01-01 --to 2025-01-01 --stations GVE \
     --variables temperature precipitation pressure \
     --monthly --output geneva_climate.csv
 ```
@@ -242,7 +245,7 @@ mch-extract --from 2024-01-01 --stations PAY --variables temperature \
 
 ### Attribution
 
-If using this data in publications or research, please consult MeteoSwiss guidelines on how to cite them.
+If using this data in publications or research, please consult MeteoSwiss guidelines on how to cite them. Data is provided under [Creative Commons Licence CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See [Terms of use](https://opendatadocs.meteoswiss.ch/general/terms-of-use).
 
 ### Disclaimer
 
