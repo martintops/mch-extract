@@ -50,7 +50,7 @@ def main() -> int:
         args = parse_args(metadata)
 
         # Create API instance
-        extractor = MchExtract(verbose=args.verbose)
+        extractor = MchExtract(verbose=args.verbose, _metadata=metadata)
 
         logger.debug(
             f"Extracting {args.timescale.to_readable_name()} data from {args.start_date} to {args.end_date} "

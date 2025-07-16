@@ -35,7 +35,7 @@ class MchExtract:
         )
     """
 
-    def __init__(self, verbose: bool = False):
+    def __init__(self, verbose: bool = False, _metadata: MeteoData | None = None):
         """
         Initialize the MchExtract API.
 
@@ -47,7 +47,7 @@ class MchExtract:
             logging.basicConfig(level=logging.DEBUG)
 
         self._downloader = CachedDownloader()
-        self._metadata: MeteoData = self._load_metadata()
+        self._metadata: MeteoData = _metadata or self._load_metadata()
 
     def _load_metadata(self) -> MeteoData:
         """Ensure metadata is loaded, download if necessary."""
