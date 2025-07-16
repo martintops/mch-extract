@@ -7,9 +7,9 @@ requires-python = ">=3.10"
 authors = [
     {name = "Martin Spoto", email = "martin.spoto98@gmail.com"}
 ]
-keywords = ["meteorology", "weather", "data", "meteoswiss", "switzerland"]
+keywords = ["meteorology", "weather", "data", "meteoswiss", "switzerland", "ogd"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -28,10 +28,10 @@ dependencies = [
 mch-extract = "mchextract.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/YOUR_GITHUB_USERNAME/mch-extract"
-Repository = "https://github.com/YOUR_GITHUB_USERNAME/mch-extract"
-Issues = "https://github.com/YOUR_GITHUB_USERNAME/mch-extract/issues"
-Documentation = "https://github.com/YOUR_GITHUB_USERNAME/mch-extract#readme"
+Homepage = "https://github.com/martintops/mch-extract"
+Repository = "https://github.com/martintops/mch-extract"
+Issues = "https://github.com/martintops/mch-extract/issues"
+Documentation = "https://github.com/martintops/mch-extract#readme"
 
 [build-system]
 requires = ["hatchling"]
