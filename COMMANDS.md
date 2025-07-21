@@ -12,16 +12,16 @@ A wrapper tool for extracting data from the MeteoSwiss OpenData API.
 
 ### Common Flags
 
-| Flag           | Args | Description                       |
-| -------------- | ---- | --------------------------------- |
-| `-h`, `--help` |      | Show help message and exit.       |
-| `--verbose`    |      | Enable verbose output.            |
-| `--no-cache`   |      | Disable caching of API responses. |
+| Flag           | Description                       |
+| -------------- | --------------------------------- |
+| `-h`, `--help` | Show help message and exit.       |
+| `--verbose`    | Enable verbose output.            |
+| `--no-cache`   | Disable caching of API responses. |
 
 ### Station Selection
 
-| Flag               | Args                                 | Description                                                           |
-| ------------------ | ------------------------------------ | --------------------------------------------------------------------- |
+| Flag               | Args                                 | Description                                                                          |
+| ------------------ | ------------------------------------ | ------------------------------------------------------------------------------------ |
 | `-s`, `--stations` | `<station_abbr> <station_abbr2> ...` | Space-separated list of target station abbreviations. E.g.: `PAY VIT`. **Required.** |
 
 ### Time Options
@@ -30,7 +30,7 @@ A wrapper tool for extracting data from the MeteoSwiss OpenData API.
 
 | Flag     | Args           | Description                                                                    |
 | -------- | -------------- | ------------------------------------------------------------------------------ |
-| `--from` | `<YYYY-MM-DD>` | Specify the start date for the data extraction. **Required.**                      |
+| `--from` | `<YYYY-MM-DD>` | Specify the start date for the data extraction. **Required.**                  |
 | `--to`   | `<YYYY-MM-DD>` | Specify the end date for the data extraction. Defaults to last available date. |
 
 #### Granularity Options
