@@ -69,6 +69,7 @@ def main() -> int:
             end_date=args.end_date,
             timescale=args.timescale,
             dwh_parameters=args.parameters,
+            short=args.short,
         )
 
         # Determine output format based on file extension

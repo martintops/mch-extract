@@ -1,20 +1,20 @@
 # MCH-Extract: MeteoSwiss OpenData Extraction Tool
 
-> **⚠️ DISCLAIMER**: This tool is **NOT official** and is **NOT affiliated** with MeteoSwiss. It is an independent project that provides a convenient access to publicly available MeteoSwiss measurement data through the Open Government Data initiative.
+> **⚠️ DISCLAIMER**: This tool is **NOT official** and is **NOT affiliated** with MeteoSwiss. It is an independent project that provides convenient access to publicly available MeteoSwiss measurement data through the Open Government Data initiative.
 
 A simple Python tool for downloading weather data from Switzerland's automatic ground-based weather stations. Designed for scientists and researchers who need easy access to publicly available [MeteoSwiss data](https://opendatadocs.meteoswiss.ch/) without dealing with the complexities of the FSDI REST API.
 
 ## What Does This Tool Do?
 
 - **Download weather data** from Swiss weather stations with simple commands
-- **Get data in different time intervals**: daily, hourly, monthly, or 10-minutes measurements
+- **Get data in different time intervals**: daily, hourly, monthly, or 10-minute measurements
 - **Save data** in Excel-friendly CSV or efficient Parquet formats
 - **Access data programmatically** in Python for analysis using [Polars](https://docs.pola.rs/) or Pandas
 - **Handle data validation** automatically - just specify what you want
 
-## Installation
+## Installation (pip)
 
-Install using pip (requires Python 3.10 or newer):
+Install using pip (requires Python 3.10 or newer). Note that using a [virtual environment](https://docs.python.org/3/library/venv.html) is recommended to avoid conflicts with other packages.
 
 ```bash
 pip install mch-extract
@@ -24,6 +24,14 @@ Verify the tool is installed and working:
 
 ```bash
 mch-extract --help
+```
+
+## Quick Run (using `uv`)
+
+Run in a separate environment using [uv](https://github.com/astral-sh/uv):
+
+```bash
+uvx mch-extract -h
 ```
 
 ## Quick Examples
@@ -40,16 +48,7 @@ mch-extract --from 2024-06-01 --to 2024-06-07 \
     --output my_weather_data.csv
 ```
 
-Get hourly temperature data with detailed output:
-
-```bash
-mch-extract --from 2024-06-01 \
-    --stations PAY \
-    --variables temperature \
-    --hourly \
-    --output hourly_temp.csv \
-    --verbose
-```
+**📖 For more command-line examples and detailed usage, see [COMMANDS.md](COMMANDS.md)**
 
 ### In Python Scripts
 
@@ -68,7 +67,7 @@ data = get_data(
 
 # If you prefer working with Pandas, you can convert the Polars DataFrame:
 # data = data.to_pandas()
-# (requires `pandas` package to be installed separately)
+# (requires `pandas` and `pyarrow` packages to be installed separately)
 
 print(f"Downloaded {len(data)} rows of data")
 print(data.head())
@@ -79,7 +78,7 @@ data.write_csv("my_data.csv")
 
 ## How to Use
 
-### Command Line Options
+### Command Line Quick Reference
 
 **Required:**
 
@@ -91,10 +90,12 @@ data.write_csv("my_data.csv")
 
 - `--to DATE`: End date (defaults to most recent valid date)
 - `--variables VARS`: What to measure (e.g., temperature precipitation). If not set, will return all available parameters for the stations
-- `--dwh PARAMS`: Additional MeteoSwiss DWH parameters shortnames to include. See below on how to find them.
-- `--output FILE`: Where to save data. Supported format are: `.csv`, `.json`, `.parquet`. If not set, will print CSV data to STDOUT
+- `--dwh PARAMS`: Additional MeteoSwiss DWH parameter short names to include. See below on how to find them.
+- `--output FILE`: Where to save data. Supported formats are: `.csv`, `.json`, `.parquet`. If not set, will print CSV data to STDOUT
 - `--verbose`: Show detailed progress information
 - `--no-cache`: Disable caching (useful for testing or debugging)
+
+**📖 For complete command-line reference and examples, see [COMMANDS.md](COMMANDS.md)**
 
 ### Available Weather Variables
 
@@ -142,26 +143,7 @@ For the list of available stations and parameters, consult the following CSV fil
   - regular: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_datainventory.csv
   - precip: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_datainventory.csv
 
-## More Examples
-
-### Command Line Examples
-
-```bash
-# Download precipitation data for multiple stations
-mch-extract --from 2024-01-01 --to 2024-01-31 --stations PAY VIT ROM \
-    --variables precipitation --hourly --output rain_data.csv
-
-# Get temperature and humidity for Zurich area
-mch-extract --from 2024-12-01 --to 2024-12-31 --stations KLO \
-    --variables temperature humidity --daily --output zurich_weather.csv
-
-# Monthly climate summary for Geneva
-mch-extract --from 2024-01-01 --to 2025-01-01 --stations GVE \
-    --variables temperature precipitation pressure \
-    --monthly --output geneva_climate.csv
-```
-
-### Python Examples
+## Python API Examples
 
 ```python
 from datetime import date
@@ -196,7 +178,7 @@ This tool accesses data from Switzerland's official weather monitoring network:
 
 ### Data Types Available
 
-- **10-minutes data**: Real-time measurements (updated every 20 minutes)
+- **10-minute data**: Real-time measurements (updated every 20 minutes)
 - **Hourly data**: Hourly summaries
 - **Daily data**: Daily summaries (most common for research)
 - **Monthly data**: Monthly climate summaries
@@ -205,7 +187,7 @@ This tool accesses data from Switzerland's official weather monitoring network:
 
 - **Historical**: From when each station started until end of last year
 - **Recent**: From January 1st of current year until yesterday
-- **Real-time**: Current data (only for hourly and 10-minutes intervals)
+- **Real-time**: Current data (only for hourly and 10-minute intervals)
 
 ### Data Quality
 
@@ -252,7 +234,7 @@ mch-extract --from 2024-01-01 --stations PAY --variables temperature \
 
 ### Attribution
 
-If using this data in publications or research, please consult MeteoSwiss guidelines on how to cite them. Data is provided under [Creative Commons Licence CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See [Terms of use](https://opendatadocs.meteoswiss.ch/general/terms-of-use).
+If using this data in publications or research, please consult MeteoSwiss guidelines on how to cite them. Data is provided under [Creative Commons License CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). See [Terms of use](https://opendatadocs.meteoswiss.ch/general/terms-of-use).
 
 ### Disclaimer
 

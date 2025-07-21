@@ -118,6 +118,7 @@ class MchExtract:
         timescale: Literal["daily", "hourly", "monthly", "10min"]
         | TimeScale = TimeScale.DAILY,
         dwh_parameters: list[str] | None = None,
+        short: bool = True,
     ) -> pl.DataFrame:
         """
         Extract meteorological data from MeteoSwiss.
@@ -129,6 +130,7 @@ class MchExtract:
             end_date: End date for data extraction
             timescale: Time resolution ('daily', 'hourly', 'monthly', '10min' or TimeScale enum)
             dwh_parameters: Additional DWH parameter codes to include
+            short: If True, use short parameter names in the output DataFrame
 
         Returns:
             Polars DataFrame with the extracted data
@@ -187,10 +189,15 @@ class MchExtract:
             )
 
         # Validate and convert variables to parameters
-        parameters: set[Parameter] = set()
+        parameters: dict[str, Parameter] = {}
         if variables or dwh_parameters:
             parameters = self._convert_variables(
-                variables, timescale, dwh_parameters, valid_stations
+                variables,
+                timescale,
+                dwh_parameters,
+                valid_stations,
+                start_date,
+                end_date,
             )
 
             if not parameters:
@@ -225,7 +232,7 @@ class MchExtract:
         downloader = DataDownloader(self._downloader)
         station_data = downloader.download_multiple_stations(
             stations=valid_stations,
-            parameters=list(parameters),
+            parameters=list(parameters.values()),
             start_date=start_date,
             end_date=end_date,
             timescale=timescale,
@@ -246,6 +253,18 @@ class MchExtract:
             # Drop the temporary datetime column since we have reference_timestamp
             combined_df = combined_df.drop("datetime_temp")
 
+        # Rename parameter columns to their full names
+        if not short:
+            print(short)
+            for col in combined_df.columns:
+                print(col)
+                # Find parameter with matching shortname
+                if col in parameters:
+                    print(self._metadata.parameters[col].full_name)
+                    combined_df = combined_df.rename(
+                        {col: self._metadata.parameters[col].full_name}
+                    )
+
         return combined_df
 
     def _convert_variables(
@@ -254,29 +273,50 @@ class MchExtract:
         timescale: TimeScale,
         dwh_parameters: list[str],
         valid_stations: list[Station],
-    ) -> set[Parameter]:
+        start_date: date,
+        end_date: date,
+    ) -> dict[str, Parameter]:
         requested_variables = set(
             flatten([convert_common_name_to_dwh(v, timescale) for v in variables])
         ).union(set(dwh_parameters))
-        parameters: set[Parameter] = set()
+        parameters: dict[str, Parameter] = {}
 
         for station in valid_stations:
-            available_variables = set(
-                [param.parameter_shortname for param in station.available_parameters]
-            )
+            param_dict = {
+                param.parameter_shortname: param
+                for param in station.available_parameters
+            }
+            available_variables = set(param_dict.keys())
             if not requested_variables.issubset(available_variables):
                 missing_vars = requested_variables - available_variables
                 self._logger.warning(
-                    f"The following requested variables are not available for station {station.abbr}: {missing_vars}"
+                    f"The following requested variables are not available for station {station.abbr}: {[self._metadata.parameters[var].full_name for var in missing_vars]}"
                 )
-            # self._metadata is guaranteed to be not None due to assertion above
-            parameters.update(
-                {
-                    self._metadata.parameters[param.parameter_shortname]
-                    for param in station.available_parameters
-                    if param.parameter_shortname in requested_variables
-                }
-            )
+
+            available: set[Parameter] = {
+                self._metadata.parameters[param.parameter_shortname]
+                for param in station.available_parameters
+                if param.parameter_shortname in requested_variables
+            }
+
+            # Check start and end dates for each parameter, warnings only
+            for param in available:
+                # we are guaranteed that param is in param_dict
+                param_since = param_dict[param.shortname].data_since
+                param_till = param_dict[param.shortname].data_till
+                if param_since and start_date < param_since.date():
+                    self._logger.warning(
+                        f"Parameter {param.full_name} at station {station.abbr} has data since {param_since}, "
+                        f"but requested start date is {start_date}."
+                    )
+
+                if param_till and end_date > param_till.date():
+                    self._logger.warning(
+                        f"Parameter {param.full_name} at station {station.abbr} has data until {param_till}, "
+                        f"but requested end date is {end_date}."
+                    )
+
+                parameters[param.shortname] = param
 
         return parameters
 
@@ -291,6 +331,7 @@ def get_data(
     | TimeScale = TimeScale.DAILY,
     dwh_parameters: list[str] | None = None,
     verbose: bool = False,
+    short: bool = True,
 ) -> pl.DataFrame:
     """
     Convenience function to extract meteorological data from MeteoSwiss.
@@ -328,4 +369,5 @@ def get_data(
         end_date=end_date,
         timescale=timescale,
         dwh_parameters=dwh_parameters,
+        short=short,
     )

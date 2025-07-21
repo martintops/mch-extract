@@ -87,6 +87,11 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
         action="store_true",
         help="Disable caching of downloaded data.",
     )
+    parser.add_argument(
+        "--short",
+        action="store_true",
+        help="Enable short output format for parameters.",
+    )
 
     args = parser.parse_args()
 
@@ -154,4 +159,5 @@ def parse_args(metadata: MeteoData) -> MchExtractArgs:
         output=args.output,
         verbose=args.verbose,
         use_cache=not args.no_cache,
+        short=args.short,
     )

@@ -36,6 +36,7 @@ class MchExtractArgs:
     output: str | None
     verbose: bool = False
     use_cache: bool = True
+    short: bool = False
 
 
 @dataclass
@@ -63,6 +64,11 @@ class Parameter:
         if not isinstance(other, Parameter):
             return NotImplemented
         return self.shortname == other.shortname
+
+    @property
+    def full_name(self) -> str:
+        """Get the full name of the parameter in English."""
+        return f"{self.shortname} [{self.unit}] ({self.description_en})"
 
 
 @dataclass
