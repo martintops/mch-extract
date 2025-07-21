@@ -44,7 +44,7 @@ Get daily temperature and precipitation data for two stations:
 mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY VIT --variables temperature precipitation --daily --output my_weather_data.csv
 ```
 
-**📖 For more command-line examples and detailed usage, see [COMMANDS.md](COMMANDS.md)**
+**📖 For more command-line examples and detailed usage, see [COMMANDS.md](https://github.com/martintops/mch-extract/blob/main/COMMANDS.md)**
 
 ### In Python Scripts
 
@@ -91,7 +91,7 @@ data.write_csv("my_data.csv")
 - `--verbose`: Show detailed progress information
 - `--no-cache`: Disable caching (useful for testing or debugging)
 
-**📖 For complete command-line reference and examples, see [COMMANDS.md](COMMANDS.md)**
+**📖 For complete command-line reference and examples, see [COMMANDS.md](https://github.com/martintops/mch-extract/blob/main/COMMANDS.md)**
 
 ### Available Weather Variables
 
@@ -258,7 +258,7 @@ This project is open source. For developers interested in:
 - Contributing code
 - Building from source
 
-Please see [DEVELOPMENT.md](DEVELOPMENT.md) for detailed technical documentation.
+Please see [DEVELOPMENT.md](https://github.com/martintops/mch-extract/blob/main/DEVELOPMENT.md) for detailed technical documentation.
 
 ## Learn More
 
