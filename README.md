@@ -41,11 +41,7 @@ uvx mch-extract -h
 Get daily temperature and precipitation data for two stations:
 
 ```bash
-mch-extract --from 2024-06-01 --to 2024-06-07 \
-    --stations PAY VIT \
-    --variables temperature precipitation \
-    --daily \
-    --output my_weather_data.csv
+mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY VIT --variables temperature precipitation --daily --output my_weather_data.csv
 ```
 
 **📖 For more command-line examples and detailed usage, see [COMMANDS.md](COMMANDS.md)**
@@ -129,19 +125,18 @@ If you use an invalid code, the tool will show you all available stations.
 
 ### References
 
-STAC browser: https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-smn?.language=en
+[STAC browser](https://data.geo.admin.ch/browser/index.html#/collections/ch.meteoschweiz.ogd-smn?.language=en)
 
 For the list of available stations and parameters, consult the following CSV files:
 
-- Stations list
-  - regular: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_stations.csv
-  - precip: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_stations.csv
-- Parameters list:
-  - regular: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_parameters.csv
-  - precip: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_parameters.csv
-- Inventory (which station has which parameters):
-  - regular: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_datainventory.csv
-  - precip: https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_datainventory.csv
+- List of regular stations (SMN): [ogd-smn_meta_stations.csv](https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_stations.csv)
+- List of precipitation stations (SMN Precip): [ogd-smn-precip_meta_stations.csv](https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_stations.csv)
+
+- List of regular parameters (SMN): [ogd-smn_meta_parameters.csv](https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_parameters.csv)
+- List of precipitation parameters (SMN Precip): [ogd-smn-precip_meta_parameters.csv](https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_parameters.csv)
+
+- Inventory of regular stations (SMN): [ogd-smn_meta_datainventory.csv](https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn/ogd-smn_meta_datainventory.csv)
+- Inventory of precipitation stations (SMN Precip): [ogd-smn-precip_meta_datainventory.csv](https://data.geo.admin.ch/ch.meteoschweiz.ogd-smn-precip/ogd-smn-precip_meta_datainventory.csv)
 
 ## Python API Examples
 
@@ -200,23 +195,29 @@ This tool accesses data from Switzerland's official weather monitoring network:
 
 ### Common Problems
 
-**"Invalid station code"**
+#### `mch-extract`: command not found
+
+- Make sure you have installed the package correctly using `pip install mch-extract`.
+- Check your PATH environment variable to ensure the `mch-extract` command is accessible.
+- If using a virtual environment, make sure it is activated before running the command.
+
+#### Invalid station code
 
 - Check your 3-letter station codes (e.g., PAY, KLO, GVE)
 - The tool will show available stations if you use an invalid code
 
-**"No data available for date range"**
+#### No data available for date range
 
 - Make sure your dates are in YYYY-MM-DD format
 - Check that the date range is reasonable (not too far in the future)
 - Some stations may not have all variables available
 
-**"Network error" or "Download failed"**
+#### "Network error" or "Download failed"
 
 - Check your internet connection
 - MeteoSwiss servers might be temporarily unavailable
 
-**Need more help?**
+#### Need more help?
 
 - Use `--verbose` to see detailed information about what's happening
 - Check that your dates and station codes are correct
@@ -226,8 +227,7 @@ This tool accesses data from Switzerland's official weather monitoring network:
 Add `--verbose` to any command to see what the tool is doing:
 
 ```bash
-mch-extract --from 2024-01-01 --stations PAY --variables temperature \
-    --daily --output debug.csv --verbose
+mch-extract --from 2024-01-01 --stations PAY --variables temperature --daily --output debug.csv --verbose
 ```
 
 ## Important Notes
@@ -267,5 +267,6 @@ Please see [DEVELOPMENT.md](DEVELOPMENT.md) for detailed technical documentation
 - [Interactive Station Map](https://www.meteoswiss.admin.ch/services-and-publications/applications/measurement-values-and-measuring-networks.html#param=messnetz-automatisch&lang=en)
 - [MeteoSwiss Open Data Explorer](https://www.meteoswiss.admin.ch/services-and-publications/applications/ext/download-data-without-coding-skills.html)
 
-#### Keywords
+### Keywords
+
 MeteoSwiss, MeteoSchweiz, MétéoSuisse, data extraction, OpenData, wrapper, Python API, Python package

@@ -88,22 +88,19 @@ Other formats will default to CSV.
 Get daily temperature and precipitation data for two stations:
 
 ```bash
-mch-extract --from 2024-06-01 --to 2024-06-07 \
-    --stations PAY VIT \
-    --variables temperature precipitation \
-    --daily \
-    --output my_weather_data.csv
+mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY VIT --variables temperature precipitation --daily --output my_weather_data.csv
 ```
 
 Get hourly temperature data with detailed output:
 
 ```bash
-mch-extract --from 2024-06-01 \
-    --stations PAY \
-    --variables temperature \
-    --hourly \
-    --output hourly_temp.csv \
-    --verbose
+mch-extract --from 2024-06-01 --stations PAY --variables temperature --hourly --output hourly_temp.csv --verbose
+```
+
+Use short parameter names in the output:
+
+```bash
+mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY VIT --variables temperature precipitation --daily --output my_weather_data.csv --short
 ```
 
 ### Advanced Examples
@@ -111,31 +108,19 @@ mch-extract --from 2024-06-01 \
 Download precipitation data for multiple stations:
 
 ```bash
-mch-extract --from 2024-01-01 --to 2024-01-31 \
-    --stations PAY VIT ROM \
-    --variables precipitation \
-    --hourly \
-    --output rain_data.csv
+mch-extract --from 2024-01-01 --to 2024-01-31 --stations PAY VIT ROM --variables precipitation --hourly --output rain_data.csv
 ```
 
 Get temperature and humidity for Zurich area:
 
 ```bash
-mch-extract --from 2024-12-01 --to 2024-12-31 \
-    --stations KLO \
-    --variables temperature humidity \
-    --daily \
-    --output zurich_weather.csv
+mch-extract --from 2024-12-01 --to 2024-12-31 --stations KLO --variables temperature humidity --daily --output zurich_weather.csv
 ```
 
 Monthly climate summary for Geneva:
 
 ```bash
-mch-extract --from 2024-01-01 --to 2025-01-01 \
-    --stations GVE \
-    --variables temperature precipitation pressure \
-    --monthly \
-    --output geneva_climate.csv
+mch-extract --from 2024-01-01 --to 2025-01-01 --stations GVE --variables temperature precipitation pressure --monthly --output geneva_climate.csv
 ```
 
 ### Output to Different Formats
@@ -143,20 +128,13 @@ mch-extract --from 2024-01-01 --to 2025-01-01 \
 Save data as Parquet for efficient storage:
 
 ```bash
-mch-extract --from 2024-06-01 --to 2024-06-07 \
-    --stations PAY \
-    --variables temperature \
-    --daily \
-    --output weather_data.parquet
+mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY --variables temperature --daily --output weather_data.parquet
 ```
 
 Print data to terminal (no output file specified):
 
 ```bash
-mch-extract --from 2024-06-01 --to 2024-06-07 \
-    --stations PAY \
-    --variables temperature \
-    --daily
+mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY --variables temperature --daily
 ```
 
 ### Using DWH Parameters Directly
@@ -164,11 +142,7 @@ mch-extract --from 2024-06-01 --to 2024-06-07 \
 Extract specific MeteoSwiss DWH parameters:
 
 ```bash
-mch-extract --from 2024-06-01 --to 2024-06-07 \
-    --stations PAY \
-    --dwh tre200x0 ure200x0 \
-    --daily \
-    --output specific_params.csv
+mch-extract --from 2024-06-01 --to 2024-06-07 --stations PAY --dwh tre200d0 ure200d0 --daily --output specific_params.csv
 ```
 
 ### Debugging and Troubleshooting
@@ -176,21 +150,11 @@ mch-extract --from 2024-06-01 --to 2024-06-07 \
 Use verbose mode to see detailed information:
 
 ```bash
-mch-extract --from 2024-06-01 \
-    --stations PAY \
-    --variables temperature \
-    --daily \
-    --output debug.csv \
-    --verbose
+mch-extract --from 2024-06-01 --stations PAY --variables temperature --daily --output debug.csv --verbose
 ```
 
 Disable caching for testing:
 
 ```bash
-mch-extract --from 2024-06-01 \
-    --stations PAY \
-    --variables temperature \
-    --daily \
-    --output test.csv \
-    --no-cache
+mch-extract --from 2024-06-01 --stations PAY --variables temperature --daily --output test.csv --no-cache
 ```

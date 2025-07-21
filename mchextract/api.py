@@ -255,12 +255,9 @@ class MchExtract:
 
         # Rename parameter columns to their full names
         if not short:
-            print(short)
             for col in combined_df.columns:
-                print(col)
                 # Find parameter with matching shortname
                 if col in parameters:
-                    print(self._metadata.parameters[col].full_name)
                     combined_df = combined_df.rename(
                         {col: self._metadata.parameters[col].full_name}
                     )
