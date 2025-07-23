@@ -5,6 +5,9 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main ]
+  schedule:
+    # Every day at 21:21 UTC
+    - cron: "21 21 * * *" 
 
 jobs:
   test:
